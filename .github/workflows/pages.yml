@@ -1,0 +1,36 @@
+name: Pubblica QR Studio
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scarica il repository
+        uses: actions/checkout@v4
+      - name: Prepara il sito
+        run: |
+          mkdir _site
+          cp index.html _site/index.html
+      - name: Carica l'artefatto Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Pubblica su GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
